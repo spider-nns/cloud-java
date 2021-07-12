@@ -1,0 +1,15 @@
+server:
+  port: 9766
+eureka:
+  instance:
+    hostname: eureka-consumer
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:9761/eureka/
+spring:
+  application:
+    name: consumer
+  main:
+    banner-mode: 'off'

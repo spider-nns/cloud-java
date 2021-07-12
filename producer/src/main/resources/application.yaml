@@ -1,0 +1,15 @@
+server:
+  port: 9765
+eureka:
+  instance:
+    hostname: eureka-producer
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://127.0.0.1:9761/eureka/
+spring:
+  application:
+    name: producer
+  main:
+    banner-mode: 'off'
