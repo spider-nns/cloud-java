@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dev.spider.geo.mapper.LetterMapper" >
+    <resultMap id="BaseResultMap" type="dev.spider.geo.entity.pojo.Letter" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="city_id" property="cityId" jdbcType="INTEGER" />
+        <result column="city_name" property="cityName" jdbcType="VARCHAR" />
+        <result column="letter" property="letter" jdbcType="VARCHAR" />
+        <result column="city_code" property="cityCode" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+        <result column="logical_del" property="logicalDel" jdbcType="INTEGER" />
+    </resultMap>
+    <insert id="batchInsert" parameterType="dev.spider.geo.entity.dto.TcLetterDTO">
+        insert into geo_letter
+        (cityId, cityName, letter)
+        values
+        <foreach collection="list" item="data" separator=",">
+        (#{data.cityId},#{data.cityName},#{data.letter})
+        </foreach>
+    </insert>
+</mapper>
