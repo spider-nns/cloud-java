@@ -78,7 +78,7 @@ public class TongCGeo {
                 //api limit  qps 20/s pageSize 20
                 String adCode = record.getAdCode();
                 String cityName = record.getCityName();
-                if (adCode.contains("00") && !adCode.contains("0000")) {
+                if (adCode.substring(4).equals("00") && !adCode.contains("0000")) {
                     String target = url.concat(adCode);
                     loopCallForThisCity(target, adCode, cityName);
                 }
@@ -115,7 +115,7 @@ public class TongCGeo {
                 }
                 int sed = Integer.parseInt(count);
                 //call next page
-                for (int i = 2; i < sed / 20 + 1; i++) {
+                for (int i = 2; i < sed / 20 + 2; i++) {
                     loopCall(originUrl.concat("&page=" + i), cityCode, cityName);
                 }
             }
@@ -150,4 +150,5 @@ public class TongCGeo {
             }
         }
     }
+
 }
