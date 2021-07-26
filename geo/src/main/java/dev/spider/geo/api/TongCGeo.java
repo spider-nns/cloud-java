@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
 import dev.spider.geo.config.TongChConfig;
 import dev.spider.geo.entity.dto.TcLetterDTO;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
@@ -76,16 +78,24 @@ public class TongCGeo {
         for (int i = 1; i <= group; i++) {
             log.info("第{}组城市", i);
             Page<GeoCity> geoCityPage = new Page<>(i, 20);
+            PageHelper.startPage(i, 20);
             List<GeoCity> geoCityIPage = geoCityMapper.selectGeoCity(geoCityPage);
             for (GeoCity record : geoCityIPage) {
                 //api limit  qps 20/s pageSize 20
                 String adCode = record.getAdCode();
                 String cityName = record.getCityName();
-//                if ((adCode.contains("0000") && cityName.contains("省"))) {
                 String target = url.concat(adCode);
+                if (cityName.contains("自治区")) continue;
                 loopCallForThisCity(target, adCode, cityName);
             }
-//            }
+        }
+    }
+
+    @GetMapping("call/{city}")
+    public void manualCall(@PathVariable(value = "city") Integer city) {
+        List<GeoCity> integers = geoCityMapper.queryLeft();
+        for (GeoCity integer : integers) {
+            loopCallForThisCity("https://restapi.amap.com/v3/place/text?key=0c2c18f48042a59b58f60c71506d0ab6&types=141201&city=" + integer.getAdCode(), integer.getAdCode(), integer.getCityName());
         }
     }
 
@@ -112,13 +122,18 @@ public class TongCGeo {
                         school.setCityName(cityName);
                         school.setSchoolName(name);
                         school.setLocation(location);
-                        int insert = schoolMapper.insert(school);
-                        log.info("{}  {}  {}", schoolName, insert == 1, location);
+                        int insert = 0;
+                        try {
+                            insert = schoolMapper.insert(school);
+                        } catch (Exception ignored) {
+
+                        }
+                        log.info("{}------{}", schoolName, insert == 1);
                     });
                 }
                 int sed = Integer.parseInt(count);
                 //call next page
-                for (int i = 2; i < sed / 20 + 2; i++) {
+                for (int i = 2; i < ((sed / 20) + 2); i++) {
                     loopCall(originUrl.concat("&page=" + i), cityCode, cityName);
                 }
             }
@@ -146,7 +161,12 @@ public class TongCGeo {
                         school.setCityName(cityName);
                         school.setSchoolName(name);
                         school.setLocation(location);
-                        int insert = schoolMapper.insert(school);
+                        int insert = 0;
+                        try {
+                            insert = schoolMapper.insert(school);
+                        } catch (Exception e) {
+
+                        }
                         log.info("{} {} {}", schoolName, insert == 1, location);
                     });
                 }

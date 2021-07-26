@@ -8,7 +8,7 @@ import lombok.*;
 import java.io.Serializable;
 import java.util.Date;
 
-@TableName(value = "school_new")
+@TableName(value = "school")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

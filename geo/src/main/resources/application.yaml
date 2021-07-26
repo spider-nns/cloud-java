@@ -5,7 +5,7 @@ spring:
     banner-mode: 'off'
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://c1:5555/geo?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://c1:5555/gd?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
     username: spider
     password: dB&x(oNt1lR)
   jackson:

@@ -11,4 +11,6 @@ public interface GeoCityMapper extends BaseMapper<GeoCity> {
     int count();
 
     List<GeoCity> selectGeoCity(Page page);
+
+    List<GeoCity> queryLeft();
 }
