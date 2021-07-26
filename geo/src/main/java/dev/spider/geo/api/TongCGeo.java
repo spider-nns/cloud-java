@@ -3,8 +3,6 @@ package dev.spider.geo.api;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.common.collect.Lists;
 import dev.spider.geo.config.TongChConfig;
@@ -15,12 +13,20 @@ import dev.spider.geo.mapper.GeoCityMapper;
 import dev.spider.geo.mapper.LetterMapper;
 import dev.spider.geo.mapper.SchoolMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +34,7 @@ import java.util.Optional;
  * HOTEL数据
  */
 @Slf4j
-@RestController
+@Controller
 public class TongCGeo {
 
     @Resource
@@ -65,24 +71,21 @@ public class TongCGeo {
     @GetMapping("gDe")
     public void loopCityCallGdGetLat() {
         String url = "https://restapi.amap.com/v3/place/text?key=0c2c18f48042a59b58f60c71506d0ab6&types=141201&city=";
-        QueryWrapper<GeoCity> geoCityQueryWrapper = new QueryWrapper<>();
-        Integer integer = geoCityMapper.selectCount(geoCityQueryWrapper);
-        int group = integer % 20 + 1;
+        Integer integer = geoCityMapper.count();
+        int group = integer / 20 + 1;
         for (int i = 1; i <= group; i++) {
             log.info("第{}组城市", i);
-            QueryWrapper<GeoCity> wrapper = new QueryWrapper<>();
             Page<GeoCity> geoCityPage = new Page<>(i, 20);
-            IPage<GeoCity> geoCityIPage = geoCityMapper.selectPage(geoCityPage, wrapper);
-            List<GeoCity> records = geoCityIPage.getRecords();
-            for (GeoCity record : records) {
+            List<GeoCity> geoCityIPage = geoCityMapper.selectGeoCity(geoCityPage);
+            for (GeoCity record : geoCityIPage) {
                 //api limit  qps 20/s pageSize 20
                 String adCode = record.getAdCode();
                 String cityName = record.getCityName();
-                if (adCode.substring(4).equals("00") && !adCode.contains("0000")) {
-                    String target = url.concat(adCode);
-                    loopCallForThisCity(target, adCode, cityName);
-                }
+//                if ((adCode.contains("0000") && cityName.contains("省"))) {
+                String target = url.concat(adCode);
+                loopCallForThisCity(target, adCode, cityName);
             }
+//            }
         }
     }
 
@@ -151,4 +154,30 @@ public class TongCGeo {
         }
     }
 
+    @GetMapping("redirect")
+    public void get() {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("h1", "v1");
+        HttpEntity<String> httpEntity = new HttpEntity<>(httpHeaders);
+        String redirectUrl = "http://127.0.0.1:9704/change?p=changep";
+
+        ResponseEntity<String> exchange = restTemplate.
+                exchange("http://127.0.0.1:8083/back?name=spider&redirectUrl=" + redirectUrl, HttpMethod.GET, httpEntity, String.class);
+        log.info("statusCode:{}", exchange.getStatusCode());
+        log.info("body:{}", exchange.getBody());
+
+    }
+
+    @GetMapping("change")
+    @ResponseBody
+    public String back(@RequestParam(value = "p") String p, HttpServletRequest request) {
+        log.info("p is {}", p);
+        String h2 = request.getHeader("h2");
+        log.info("h2 is :{}", h2);
+        return "hello redirect";
+    }
+
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        System.out.println(URLEncoder.encode("http://127.0.0.1:9704/change?p=spider", "UTF-8"));
+    }
 }
