@@ -19,14 +19,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Optional;
 
@@ -166,18 +161,5 @@ public class TongCGeo {
         log.info("statusCode:{}", exchange.getStatusCode());
         log.info("body:{}", exchange.getBody());
 
-    }
-
-    @GetMapping("change")
-    @ResponseBody
-    public String back(@RequestParam(value = "p") String p, HttpServletRequest request) {
-        log.info("p is {}", p);
-        String h2 = request.getHeader("h2");
-        log.info("h2 is :{}", h2);
-        return "hello redirect";
-    }
-
-    public static void main(String[] args) throws UnsupportedEncodingException {
-        System.out.println(URLEncoder.encode("http://127.0.0.1:9704/change?p=spider", "UTF-8"));
     }
 }
