@@ -8,11 +8,11 @@
         <result column="ad_code" property="adCode" jdbcType="VARCHAR" />
     </resultMap>
     <select id="count" resultType="java.lang.Integer">
-        select count(1) from  geo_city where city_name not like '%省' and substr(ad_code,5)='00'
+        select count(1) from  city where city_name not like '%省' and substr(ad_code,5)='00'
     </select>
     <select id="selectGeoCity" resultMap="BaseResultMap">
-        select * from geo_city where
-            city_name not like '%省' and substr(ad_code,5)='00'
+        select * from city where
+            city_name not like '%省' and substr(ad_code,5)='00' order by ad_code
     </select>
     <insert id="batchInsert" parameterType="dev.spider.geo.entity.dto.TcLetterDTO">
         insert into geo_letter
@@ -22,4 +22,9 @@
             (#{data.cityId},#{data.cityName},#{data.letter})
         </foreach>
     </insert>
+    <select id="queryLeft" resultType="dev.spider.geo.entity.pojo.GeoCity">
+        select * from city where ad_code not in (
+            select distinct school.city_code from school
+        ) and city_name not like '%省' and substr(ad_code,5)='00' order by ad_code;
+    </select>
 </mapper>

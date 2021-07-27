@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-@TableName(value = "geo_city")
+@TableName(value = "city")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
